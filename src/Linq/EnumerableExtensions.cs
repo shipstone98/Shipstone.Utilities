@@ -18,7 +18,7 @@ public static class EnumerableExtensions
     /// <typeparam name="TResult">The type of the value returned by the transform function.</typeparam>
     /// <param name="source">A sequence of values to invoke a transform function on.</param>
     /// <param name="selector">An asynchronous transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
-    /// <param name="cancellationToken">The token to monirot for cancellation requests.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>An <see cref="IAsyncEnumerable{T}" /> whose elements are the result of invoking <c><paramref name="selector" /></c> on each element of <c><paramref name="source" /></c>.</returns>
     /// <exception cref="ArgumentNullException"><c><paramref name="source" /></c> is <c>null</c> -or- <c><paramref name="selector" /></c> is <c>null</c>.</exception>
     /// <exception cref="OperationCanceledException">The cancellation token was canceled.</exception>
