@@ -53,7 +53,8 @@ public static class EnumerableExtensions
                 ++ index;
             }
 
-            yield return await selector(item, index, cancellationToken);
+            yield return await selector(item, index, cancellationToken)
+                .ConfigureAwait(false);
         }
     }
 
@@ -99,11 +100,11 @@ public static class EnumerableExtensions
                 ++ index;
             }
 
-            await foreach (TResult resultItem in selector(
-                item,
-                index,
-                cancellationToken
-            ))
+            ConfiguredCancelableAsyncEnumerable<TResult> awaitableSource =
+                selector(item, index, cancellationToken)
+                    .ConfigureAwait(false);
+
+            await foreach (TResult resultItem in awaitableSource)
             {
                 yield return resultItem;
             }

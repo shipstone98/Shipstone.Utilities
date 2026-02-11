@@ -39,7 +39,9 @@ public static class AsyncEnumerableExtensions
     {
         List<TSource> list = new();
 
-        await foreach (TSource item in source.WithCancellation(cancellationToken))
+        await foreach (TSource item in source
+                .WithCancellation(cancellationToken)
+            .ConfigureAwait(false))
         {
             list.Add(item);
         }
