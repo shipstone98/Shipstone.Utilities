@@ -196,9 +196,9 @@ public sealed class EnumerableExtensionsTest
     }
 #endregion
 
-    private static async IAsyncEnumerable<char> SelectAsync(
-        String source
-    )
+#pragma warning disable CS1998
+    private static async IAsyncEnumerable<char> SelectAsync(String source)
+#pragma warning restore CS1998
     {
         foreach (char c in source)
         {
