@@ -5,7 +5,7 @@ namespace Shipstone.Utilities.Collections;
 /// <summary>
 /// Represents a read-only, paginated collection of elements that can be accessed by index.
 /// </summary>
-/// <typeparam name="T">The type of elements in the pagintaed list.</typeparam>
+/// <typeparam name="T">The type of elements in the paginated list.</typeparam>
 public interface IReadOnlyPaginatedList<out T> : IReadOnlyList<T>
 {
     /// <summary>
