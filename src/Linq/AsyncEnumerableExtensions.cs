@@ -48,4 +48,47 @@ public static class AsyncEnumerableExtensions
 
         return list;
     }
+
+    /// <summary>
+    /// Asynchronously creates a sorted set from an <see cref="IAsyncEnumerable{T}" /> using the specified comparer.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements of the source collection.</typeparam>
+    /// <param name="source">The <see cref="IAsyncEnumerable{T}" /> to create a sorted set from.</param>
+    /// <param name="comparer">An <see cref="IComparer{T}" /> to compare elements, or <c>null</c> to use the <see cref="Comparer{T}.Default" />.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>A <see cref="Task{TResult}" /> that represents the asynchronous create operation. The value of <see cref="Task{TResult}.Result" /> contains the created <see cref="SortedSet{T}" />.</returns>
+    /// <exception cref="ArgumentNullException"><c><paramref name="source" /></c> is <c>null</c>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled.</exception>
+    public static Task<SortedSet<TSource>> ToSortedSetAsync<TSource>(
+        this IAsyncEnumerable<TSource> source,
+        IComparer<TSource>? comparer = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        return AsyncEnumerableExtensions.ToSortedSetAsyncCore(
+            source,
+            comparer,
+            cancellationToken
+        );
+    }
+
+    private static async Task<SortedSet<TSource>> ToSortedSetAsyncCore<TSource>(
+        IAsyncEnumerable<TSource> source,
+        IComparer<TSource>? comparer,
+        CancellationToken cancellationToken
+    )
+    {
+        SortedSet<TSource> sortedSet = new(comparer);
+
+        await foreach (TSource item in source
+            .WithCancellation(cancellationToken)
+            .ConfigureAwait(false))
+        {
+            sortedSet.Add(item);
+        }
+
+        return sortedSet;
+    }
 }
