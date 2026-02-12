@@ -183,4 +183,80 @@ public sealed class AsyncEnumerableExtensionsTest
     }
 #endregion
 #endregion
+
+#region WhereNotNullAsync method
+    [Fact]
+    public void TestWhereNotNullAsync_Invalid()
+    {
+        // Act
+        ArgumentException ex =
+            Assert.Throws<ArgumentNullException>(() =>
+                AsyncEnumerableExtensions.WhereNotNullAsync<Object>(null!));
+
+        // Assert
+        Assert.Equal("source", ex.ParamName);
+    }
+
+    [Fact]
+    public async Task TestWhereNotNullAsync_Valid_Empty()
+    {
+        // Arrange
+        MockAsyncEnumerable<Object?> source = new();
+
+        source._getAsyncEnumeratorFunc = () =>
+        {
+            MockAsyncEnumerator<Object?> enumerator = new();
+            enumerator._disposeAction = () => { };
+            enumerator._moveNextFunc = () => false;
+            return enumerator;
+        };
+
+        // Act
+        IAsyncEnumerable<Object> result =
+            AsyncEnumerableExtensions.WhereNotNullAsync(source);
+
+        // Assert
+        IAsyncEnumerator<Object> enumerator = result.GetAsyncEnumerator();
+        Assert.False(await enumerator.MoveNextAsync());
+    }
+
+    [Fact]
+    public async Task TestWhereNotNullAsync_Valid_NotEmpty()
+    {
+        // Arrange
+        const int INTEGER = 12345;
+        const String STRING = "Hello, world!";
+
+        IEnumerable<Object?> sourceCollection =
+            new Object?[] { null, INTEGER, STRING };
+
+        MockAsyncEnumerable<Object?> source = new();
+
+        source._getAsyncEnumeratorFunc = () =>
+        {
+            IEnumerator<Object?> sourceEnumerator =
+                sourceCollection.GetEnumerator();
+
+            MockAsyncEnumerator<Object?> enumerator = new();
+            enumerator._disposeAction = sourceEnumerator.Dispose;
+            enumerator._moveNextFunc = sourceEnumerator.MoveNext;
+            enumerator._currentFunc = () => sourceEnumerator.Current;
+            return enumerator;
+        };
+
+        // Act
+        IAsyncEnumerable<Object> result =
+            AsyncEnumerableExtensions.WhereNotNullAsync(source);
+
+        // Assert
+        ICollection<Object> remaining = new List<Object> { INTEGER, STRING };
+
+        await foreach (Object item in result)
+        {
+            Assert.True(remaining.Remove(item));
+        }
+
+        Assert.Empty(remaining);
+    }
+#endregion
 }

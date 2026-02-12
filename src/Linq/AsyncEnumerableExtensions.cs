@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,7 +41,7 @@ public static class AsyncEnumerableExtensions
         List<TSource> list = new();
 
         await foreach (TSource item in source
-                .WithCancellation(cancellationToken)
+            .WithCancellation(cancellationToken)
             .ConfigureAwait(false))
         {
             list.Add(item);
@@ -90,5 +91,44 @@ public static class AsyncEnumerableExtensions
         }
 
         return sortedSet;
+    }
+
+    /// <summary>
+    /// Filters a sequence of values based on non-nullability.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements of the source collection.</typeparam>
+    /// <param name="source">The <see cref="IAsyncEnumerable{T}" /> to filter.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>A <see cref="Task{TResult}" /> that represents the asynchronous filter operation. The value of <see cref="Task{TResult}.Result" /> contains an <see cref="IAsyncEnumerable{T}" /> that contains elements from <c><paramref name="source" /></c> that are not <c>null</c>.</returns>
+    /// <exception cref="ArgumentNullException"><c><paramref name="source" /></c> is <c>null</c>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled.</exception>
+    public static IAsyncEnumerable<TSource> WhereNotNullAsync<TSource>(
+        this IAsyncEnumerable<TSource?> source,
+        CancellationToken cancellationToken = default
+    )
+        where TSource : class
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        return AsyncEnumerableExtensions.WhereNotNullAsyncCore(
+            source,
+            cancellationToken
+        );
+    }
+
+    private static async IAsyncEnumerable<TSource> WhereNotNullAsyncCore<TSource>(
+        this IAsyncEnumerable<TSource?> source,
+        [EnumeratorCancellation] CancellationToken cancellationToken
+    )
+    {
+        await foreach (TSource? item in source
+            .WithCancellation(cancellationToken)
+            .ConfigureAwait(false))
+        {
+            if (item is not null)
+            {
+                yield return item;
+            }
+        }
     }
 }
