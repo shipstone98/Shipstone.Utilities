@@ -1,8 +1,9 @@
 name: NuGet Push
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - master
 
 jobs:
   build:
