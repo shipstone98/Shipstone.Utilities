@@ -6,6 +6,8 @@ using Xunit;
 
 using Shipstone.Utilities.Linq;
 
+using Shipstone.UtilitiesTest.Mocks;
+
 namespace Shipstone.UtilitiesTest.Linq;
 
 public sealed class EnumerableExtensionsTest
@@ -194,6 +196,76 @@ public sealed class EnumerableExtensionsTest
         IEnumerable<int> indicesExpected = new int[] { 0, 1, 2 };
         Assert.True(indicesExpected.SequenceEqual(indicesActual));
     }
+#endregion
+
+#region ToSortedSet method
+    [Fact]
+    public void TestToSortedSet_Invalid()
+    {
+        // Act
+        ArgumentException ex =
+            Assert.Throws<ArgumentNullException>(() =>
+                EnumerableExtensions.ToSortedSet<Object>(null!));
+
+        // Assert
+        Assert.Equal("source", ex.ParamName);
+    }
+
+#region Valid arguments
+    [Fact]
+    public void TestToSortedSet_Valid_Empty()
+    {
+        // Arrange
+        IEnumerable<Object> source = Array.Empty<Object>();
+
+        // Act
+        SortedSet<Object> result = EnumerableExtensions.ToSortedSet(source);
+
+        // Assert
+        Assert.NotNull(result.Comparer);
+        Assert.Empty(result);
+        Assert.Null(result.Max);
+        Assert.Null(result.Min);
+    }
+
+    [Fact]
+    public void TestToSortedSet_Valid_NotEmpty_ComparerNotNull()
+    {
+        // Arrange
+        const int COUNT = 5;
+        IEnumerable<int> source = new int[COUNT] { 1, 2, 3, 4, 5 };
+        IComparer<int> comparer = new MockInt32Comparer();
+
+        // Act
+        SortedSet<int> result =
+            EnumerableExtensions.ToSortedSet(source, comparer);
+
+        // Assert
+        Assert.Same(comparer, result.Comparer);
+        Assert.Equal(COUNT, result.Count);
+        Assert.Equal(1, result.Max);
+        Assert.Equal(COUNT, result.Min);
+        Assert.True(source.Reverse().SequenceEqual(result));
+    }
+
+    [Fact]
+    public void TestToSortedSet_Valid_NotEmpty_ComparerNull()
+    {
+        // Arrange
+        const int COUNT = 5;
+        IEnumerable<int> source = new int[COUNT] { 1, 2, 3, 4, 5 };
+
+        // Act
+        SortedSet<int> result = EnumerableExtensions.ToSortedSet(source);
+
+        // Assert
+        Assert.NotNull(result.Comparer);
+        Assert.Equal(COUNT, result.Count);
+        Assert.Equal(COUNT, result.Max);
+        Assert.Equal(1, result.Min);
+        Assert.True(source.SequenceEqual(result));
+    }
+#endregion
 #endregion
 
 #pragma warning disable CS1998

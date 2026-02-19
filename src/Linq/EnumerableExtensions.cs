@@ -110,4 +110,21 @@ public static class EnumerableExtensions
             }
         }
     }
+
+    /// <summary>
+    /// Creates a sorted set from an <see cref="IAsyncEnumerable{T}" /> using the specified comparer.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements of the source collection.</typeparam>
+    /// <param name="source">The <see cref="IEnumerable{T}" /> to create a sorted set from.</param>
+    /// <param name="comparer">An <see cref="IComparer{T}" /> to compare elements, or <c>null</c> to use the <see cref="Comparer{T}.Default" />.</param>
+    /// <returns>The created <see cref="SortedSet{T}" />.</returns>
+    /// <exception cref="ArgumentNullException"><c><paramref name="source" /></c> is <c>null</c>.</exception>
+    public static SortedSet<TSource> ToSortedSet<TSource>(
+        this IEnumerable<TSource> source,
+        IComparer<TSource>? comparer = null
+    )
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        return new(source, comparer);
+    }
 }
