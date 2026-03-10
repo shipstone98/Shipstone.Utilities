@@ -55,6 +55,116 @@ public sealed class AsyncEnumerableExtensionsTest
         Assert.NotEqual(result, isEmpty);
     }
 
+#region SelectAsync method
+    [Fact]
+    public void TestSelectAsync_Invalid_SelectorNull()
+    {
+        // Arrange
+        IAsyncEnumerable<Object> source = new MockAsyncEnumerable<Object>();
+
+        // Act
+        ArgumentException ex =
+            Assert.Throws<ArgumentNullException>(() =>
+                AsyncEnumerableExtensions.SelectAsync<Object, Object>(
+                    source,
+                    null!
+                ));
+
+        // Assert
+        Assert.Equal("selector", ex.ParamName);
+    }
+
+    [Fact]
+    public void TestSelectAsync_Invalid_SourceNull()
+    {
+        // Act
+        ArgumentException ex =
+            Assert.Throws<ArgumentNullException>(() =>
+                AsyncEnumerableExtensions.SelectAsync<Object, Object>(
+                    null!,
+                    (_, _) => throw new NotImplementedException()
+                ));
+
+        // Assert
+        Assert.Equal("source", ex.ParamName);
+    }
+
+    [Fact]
+    public async Task TestSelectAsync_Valid_Empty()
+    {
+        // Arrange
+        MockAsyncEnumerable<Object> source = new();
+
+        source._getAsyncEnumeratorFunc = () =>
+        {
+            MockAsyncEnumerator<Object> enumerator = new();
+            enumerator._disposeAction = () => { };
+            enumerator._moveNextFunc = () => false;
+            return enumerator;
+        };
+
+        // Act
+        IAsyncEnumerable<Object> result =
+            AsyncEnumerableExtensions.SelectAsync<Object, Object>(
+                source,
+                (_, _) => throw new NotImplementedException()
+            );
+
+        // Assert
+        IAsyncEnumerator<Object> enumerator = result.GetAsyncEnumerator();
+        Assert.False(await enumerator.MoveNextAsync());
+    }
+
+    [Fact]
+    public async Task TestSelectAsync_Valid_NotEmpty()
+    {
+        // Arrange
+        const int COUNT = 10;
+        IReadOnlyList<int> sourceList = Internals.CreateInt32Array(COUNT);
+        ISet<int> indices = new SortedSet<int>();
+        MockAsyncEnumerable<int> source = new();
+
+        source._getAsyncEnumeratorFunc = () =>
+        {
+            MockAsyncEnumerator<int> enumerator = new();
+            enumerator._disposeAction = () => { };
+            IEnumerator<int> listEnumerator = sourceList.GetEnumerator();
+            enumerator._moveNextFunc = listEnumerator.MoveNext;
+            enumerator._currentFunc = () => listEnumerator.Current;
+            return enumerator;
+        };
+
+        // Act
+        IAsyncEnumerable<String> result =
+            AsyncEnumerableExtensions.SelectAsync(
+                source,
+                (n, i) =>
+                {
+                    indices.Add(i);
+                    return n.ToString();
+                }
+            );
+
+        // Assert
+        IAsyncEnumerator<String> enumerator = result.GetAsyncEnumerator();
+
+        for (int i = 0; i < COUNT; i ++)
+        {
+            Assert.True(await enumerator.MoveNextAsync());
+            Assert.Equal(sourceList[i].ToString(), enumerator.Current);
+        }
+
+        Assert.False(await enumerator.MoveNextAsync());
+        Assert.Equal(COUNT, indices.Count);
+        int index = 0;
+
+        foreach (int indicesIndex in indices)
+        {
+            Assert.Equal(index ++, indicesIndex);
+        }
+    }
+#endregion
+
 #region ToListAsync method
     [Fact]
     public async Task TestToListAsync_Invalid()

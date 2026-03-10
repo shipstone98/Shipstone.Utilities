@@ -55,6 +55,54 @@ public static class AsyncEnumerableExtensions
     }
 
     /// <summary>
+    /// Asynchronously projects each element of an <see cref="IAsyncEnumerable{T}" /> into a new form by incorporating the element's index.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements of the source collection.</typeparam>
+    /// <typeparam name="TResult">The type of the value returned by the transform function.</typeparam>
+    /// <param name="source">An <see cref="IAsyncEnumerable{T}" /> of values to invoke a transform function on.</param>
+    /// <param name="selector">A transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>An <see cref="IAsyncEnumerable{T}" /> whose elements are the result of invoking <c><paramref name="selector" /></c> on each element of <c><paramref name="source" /></c>.</returns>
+    /// <exception cref="ArgumentNullException"><c><paramref name="source" /></c> is <c>null</c> -or- <c><paramref name="selector" /></c> is <c>null</c>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled.</exception>
+    public static IAsyncEnumerable<TResult> SelectAsync<TSource, TResult>(
+        this IAsyncEnumerable<TSource> source,
+        Func<TSource, int, TResult> selector,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(selector);
+
+        return AsyncEnumerableExtensions.SelectAsyncCore(
+            source,
+            selector,
+            cancellationToken
+        );
+    }
+
+    private static async IAsyncEnumerable<TResult> SelectAsyncCore<TSource, TResult>(
+        IAsyncEnumerable<TSource> source,
+        Func<TSource, int, TResult> selector,
+        [EnumeratorCancellation] CancellationToken cancellationToken
+    )
+    {
+        int index = -1;
+
+        await foreach (TSource item in source
+            .WithCancellation(cancellationToken)
+            .ConfigureAwait(false))
+        {
+            checked
+            {
+                ++ index;
+            }
+
+            yield return selector(item, index);
+        }
+    }
+
+    /// <summary>
     /// Asynchronously creates a list from an <see cref="IAsyncEnumerable{T}" />.
     /// </summary>
     /// <typeparam name="TSource">The type of elements of the source collection.</typeparam>
