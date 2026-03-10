@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -12,6 +13,48 @@ namespace Shipstone.UtilitiesTest.Collections;
 
 public sealed class AsyncEnumerableExtensionsTest
 {
+    [Fact]
+    public async Task TestAnyAsync_Invalid()
+    {
+        // Act
+        ArgumentException ex =
+            await Assert.ThrowsAsync<ArgumentNullException>(() =>
+                AsyncEnumerableExtensions.AnyAsync<Object>(
+                    null!,
+                    CancellationToken.None
+                ));
+
+        // Assert
+        Assert.Equal("source", ex.ParamName);
+    }
+
+    [InlineData(false)]
+    [InlineData(true)]
+    [Theory]
+    public async Task TestAnyAsync_Valid(bool isEmpty)
+    {
+        // Arrange
+        MockAsyncEnumerable<Object> source = new();
+
+        source._getAsyncEnumeratorFunc = () =>
+        {
+            MockAsyncEnumerator<Object> enumerator = new();
+            enumerator._disposeAction = () => { };
+            enumerator._moveNextFunc = () => !isEmpty;
+            return enumerator;
+        };
+
+        // Act
+        bool result =
+            await AsyncEnumerableExtensions.AnyAsync(
+                source,
+                CancellationToken.None
+            );
+
+        // Assert
+        Assert.NotEqual(result, isEmpty);
+    }
+
 #region ToListAsync method
     [Fact]
     public async Task TestToListAsync_Invalid()

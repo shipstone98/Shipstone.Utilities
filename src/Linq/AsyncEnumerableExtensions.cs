@@ -12,6 +12,49 @@ namespace Shipstone.Utilities.Linq;
 public static class AsyncEnumerableExtensions
 {
     /// <summary>
+    /// Asynchronously determines whether an <see cref="IAsyncEnumerable{T}" /> contains any elements.
+    /// </summary>
+    /// <typeparam name="TSource">The type of elements of the source collection.</typeparam>
+    /// <param name="source">The <see cref="IAsyncEnumerable{T}" /> to check for emptiness.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>A <see cref="Task{TResult}" /> that represents the asynchronous determine operation. The value of <see cref="Task{TResult}.Result" /> contains <c>true</c> if <c><paramref name="source" /></c> contains any elements; otherwise, <c>false</c>.</returns>
+    /// <exception cref="ArgumentNullException"><c><paramref name="source" /></c> is <c>null</c>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled.</exception>
+    public static Task<bool> AnyAsync<TSource>(
+        this IAsyncEnumerable<TSource> source,
+        CancellationToken cancellationToken
+    )
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        return AsyncEnumerableExtensions.AnyAsyncCore(
+            source,
+            cancellationToken
+        );
+    }
+
+    private static async Task<bool> AnyAsyncCore<TSource>(
+        IAsyncEnumerable<TSource> source,
+        CancellationToken cancellationToken
+    )
+    {
+        IAsyncEnumerator<TSource> enumerator =
+            source.GetAsyncEnumerator(cancellationToken);
+
+        await using (enumerator.ConfigureAwait(false))
+        {
+            if (await enumerator
+                .MoveNextAsync()
+                .ConfigureAwait(false))
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Asynchronously creates a list from an <see cref="IAsyncEnumerable{T}" />.
     /// </summary>
     /// <typeparam name="TSource">The type of elements of the source collection.</typeparam>
