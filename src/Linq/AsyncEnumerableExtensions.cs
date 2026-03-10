@@ -22,7 +22,7 @@ public static class AsyncEnumerableExtensions
     /// <exception cref="OperationCanceledException">The cancellation token was canceled.</exception>
     public static Task<bool> AnyAsync<TSource>(
         this IAsyncEnumerable<TSource> source,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
     )
     {
         ArgumentNullException.ThrowIfNull(source);
