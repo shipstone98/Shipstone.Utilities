@@ -112,7 +112,7 @@ public static class EnumerableExtensions
     }
 
     /// <summary>
-    /// Creates a sorted set from an <see cref="IAsyncEnumerable{T}" /> using the specified comparer.
+    /// Creates a sorted set from an <see cref="IEnumerable{T}" /> using the specified comparer.
     /// </summary>
     /// <typeparam name="TSource">The type of elements of the source collection.</typeparam>
     /// <param name="source">The <see cref="IEnumerable{T}" /> to create a sorted set from.</param>
