@@ -67,6 +67,8 @@ public class ColorJsonConverter : JsonConverter<Color>
                     case "r":
                         r = reader.GetByte();
                         break;
+                    default:
+                        throw new JsonException();
                 }
             }
         }
