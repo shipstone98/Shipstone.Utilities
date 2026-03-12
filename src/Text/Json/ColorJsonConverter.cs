@@ -24,11 +24,21 @@ public class ColorJsonConverter : JsonConverter<Color>
 
         try
         {
+            if (!(reader.Read() && reader.TokenType == JsonTokenType.StartObject))
+            {
+                throw new JsonException();
+            }
+
             while (reader.Read())
             {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    break;
+                }
+
                 if (reader.TokenType != JsonTokenType.PropertyName)
                 {
-                    continue;
+                    throw new JsonException();
                 }
 
                 String? propertyName = reader.GetString();
