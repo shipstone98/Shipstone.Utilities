@@ -29,7 +29,18 @@ public class ColorJsonConverter : JsonConverter<Color>
 
         try
         {
-            if (!(reader.Read() && reader.TokenType == JsonTokenType.StartObject))
+            if (reader.TokenType == JsonTokenType.None)
+            {
+                if (!(
+                    reader.Read()
+                    && reader.TokenType == JsonTokenType.StartObject
+                ))
+                {
+                    throw new JsonException();
+                }
+            }
+
+            else if (reader.TokenType != JsonTokenType.StartObject)
             {
                 throw new JsonException();
             }
