@@ -26,30 +26,32 @@ public class ColorJsonConverter : JsonConverter<Color>
         {
             while (reader.Read())
             {
-                if (reader.TokenType == JsonTokenType.PropertyName)
+                if (reader.TokenType != JsonTokenType.PropertyName)
                 {
-                    String? propertyName = reader.GetString();
+                    continue;
+                }
 
-                    if (!reader.Read())
-                    {
-                        throw new JsonException();
-                    }
+                String? propertyName = reader.GetString();
 
-                    switch (propertyName?.ToLowerInvariant())
-                    {
-                        case "a":
-                            a = reader.GetByte();
-                            break;
-                        case "b":
-                            b = reader.GetByte();
-                            break;
-                        case "g":
-                            g = reader.GetByte();
-                            break;
-                        case "r":
-                            r = reader.GetByte();
-                            break;
-                    }
+                if (!reader.Read())
+                {
+                    throw new JsonException();
+                }
+
+                switch (propertyName?.ToLowerInvariant())
+                {
+                    case "a":
+                        a = reader.GetByte();
+                        break;
+                    case "b":
+                        b = reader.GetByte();
+                        break;
+                    case "g":
+                        g = reader.GetByte();
+                        break;
+                    case "r":
+                        r = reader.GetByte();
+                        break;
                 }
             }
         }
