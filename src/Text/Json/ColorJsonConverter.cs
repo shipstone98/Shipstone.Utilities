@@ -32,7 +32,7 @@ public class ColorJsonConverter : JsonConverter<Color>
 
                     if (!reader.Read())
                     {
-                        return Color.FromArgb(Byte.MaxValue, 0, 0, 0);
+                        throw new JsonException();
                     }
 
                     switch (propertyName?.ToLowerInvariant())
