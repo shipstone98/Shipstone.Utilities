@@ -10,6 +10,11 @@ namespace Shipstone.Utilities.Text.Json;
 /// </summary>
 public class ColorJsonConverter : JsonConverter<Color>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ColorJsonConverter" /> class.
+    /// </summary>
+    public ColorJsonConverter() { }
+
     /// <inheritdoc />
     public override Color Read(
         ref Utf8JsonReader reader,
