@@ -15,6 +15,8 @@ namespace Shipstone.UtilitiesTest.Text.Json;
 public sealed class ColorJsonConverterTest
 {
     [InlineData("", Byte.MaxValue, 0, 0, 0)]
+    [InlineData("{", Byte.MaxValue, 0, 0, 0)]
+    [InlineData("}", Byte.MaxValue, 0, 0, 0)]
     [InlineData("{}", Byte.MaxValue, 0, 0, 0)]
     [InlineData("{\"a\":}", Byte.MaxValue, 0, 0, 0)]
     [InlineData("{\"r\":}", Byte.MaxValue, 0, 0, 0)]
