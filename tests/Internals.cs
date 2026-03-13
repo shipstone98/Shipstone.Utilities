@@ -44,4 +44,16 @@ internal static class Internals
 
         return array;
     }
+
+    internal static SortedSet<int> CreateInt32Set(int length, int start = 1)
+    {
+        SortedSet<int> sortedSet = new();
+
+        for (int i = 0; i < length; i ++)
+        {
+            sortedSet.Add(i + start);
+        }
+
+        return sortedSet;
+    }
 }
