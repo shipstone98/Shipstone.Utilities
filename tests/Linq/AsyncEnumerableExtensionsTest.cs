@@ -19,7 +19,10 @@ public sealed class AsyncEnumerableExtensionsTest
         // Act
         ArgumentException ex =
             await Assert.ThrowsAsync<ArgumentNullException>(() =>
-                AsyncEnumerableExtensions.ToSortedSetAsync<Object>(null!));
+                AsyncEnumerableExtensions.ToSortedSetAsync<Object>(
+                    null!,
+                    cancellationToken: TestContext.Current.CancellationToken
+                ));
 
         // Assert
         Assert.Equal("source", ex.ParamName);
@@ -42,7 +45,10 @@ public sealed class AsyncEnumerableExtensionsTest
 
         // Act
         SortedSet<Object> result =
-            await AsyncEnumerableExtensions.ToSortedSetAsync(source);
+            await AsyncEnumerableExtensions.ToSortedSetAsync(
+                source,
+                cancellationToken: TestContext.Current.CancellationToken
+            );
 
         // Assert
         Assert.NotNull(result.Comparer);
@@ -74,7 +80,11 @@ public sealed class AsyncEnumerableExtensionsTest
 
         // Act
         SortedSet<int> result =
-            await AsyncEnumerableExtensions.ToSortedSetAsync(source, comparer);
+            await AsyncEnumerableExtensions.ToSortedSetAsync(
+                source,
+                comparer,
+                TestContext.Current.CancellationToken
+            );
 
         // Assert
         Assert.Same(comparer, result.Comparer);
@@ -106,7 +116,10 @@ public sealed class AsyncEnumerableExtensionsTest
 
         // Act
         SortedSet<int> result =
-            await AsyncEnumerableExtensions.ToSortedSetAsync(source);
+            await AsyncEnumerableExtensions.ToSortedSetAsync(
+                source,
+                cancellationToken: TestContext.Current.CancellationToken
+            );
 
         // Assert
         Assert.NotNull(result.Comparer);

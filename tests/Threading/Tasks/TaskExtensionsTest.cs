@@ -33,7 +33,7 @@ public sealed class TaskExtensionsTest
 
         // Assert
         await using IAsyncEnumerator<int> resultEnumerator =
-            result.GetAsyncEnumerator();
+            result.GetAsyncEnumerator(TestContext.Current.CancellationToken);
 
         Assert.False(await resultEnumerator.MoveNextAsync());
     }
@@ -53,7 +53,7 @@ public sealed class TaskExtensionsTest
         IEnumerator enumerator = sourceCollection.GetEnumerator();
 
         await using IAsyncEnumerator<int> resultEnumerator =
-            result.GetAsyncEnumerator();
+            result.GetAsyncEnumerator(TestContext.Current.CancellationToken);
 
         while (enumerator.MoveNext())
         {

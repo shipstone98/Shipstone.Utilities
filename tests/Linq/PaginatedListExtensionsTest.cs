@@ -129,7 +129,8 @@ public sealed class PaginatedListExtensionsTest
             await Assert.ThrowsAsync<ArgumentNullException>(() =>
                 PaginatedListExtensions.SelectAsync<Object, Object>(
                     source,
-                    null!
+                    null!,
+                    TestContext.Current.CancellationToken
                 ));
 
         // Assert
@@ -144,7 +145,8 @@ public sealed class PaginatedListExtensionsTest
             await Assert.ThrowsAsync<ArgumentNullException>(() =>
                 PaginatedListExtensions.SelectAsync<Object, Object>(
                     null!,
-                    (_, _, _) => throw new NotImplementedException()
+                    (_, _, _) => throw new NotImplementedException(),
+                    TestContext.Current.CancellationToken
                 ));
 
         // Assert
@@ -166,7 +168,8 @@ public sealed class PaginatedListExtensionsTest
         IReadOnlyPaginatedList<Object> result =
             await PaginatedListExtensions.SelectAsync<Object, Object>(
                 source,
-                (_, _, _) => throw new NotImplementedException()
+                (_, _, _) => throw new NotImplementedException(),
+                TestContext.Current.CancellationToken
             );
 
         // Assert
@@ -201,7 +204,8 @@ public sealed class PaginatedListExtensionsTest
                     indices.Add(i);
                     String s = n.ToString();
                     return Task.FromResult(s);
-                }
+                },
+                TestContext.Current.CancellationToken
             );
 
         // Assert

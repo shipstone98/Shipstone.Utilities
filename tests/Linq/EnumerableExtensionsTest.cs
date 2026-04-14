@@ -24,7 +24,8 @@ public sealed class EnumerableExtensionsTest
             Assert.Throws<ArgumentNullException>(() =>
                 EnumerableExtensions.SelectAsync<Object, Object>(
                     source,
-                    null!
+                    null!,
+                    TestContext.Current.CancellationToken
                 ));
 
         // Assert
@@ -39,7 +40,8 @@ public sealed class EnumerableExtensionsTest
             Assert.Throws<ArgumentNullException>(() =>
                 EnumerableExtensions.SelectAsync<Object, Object>(
                     null!,
-                    (_, _, _) => throw new NotImplementedException()
+                    (_, _, _) => throw new NotImplementedException(),
+                    TestContext.Current.CancellationToken
                 ));
 
         // Assert
@@ -56,11 +58,14 @@ public sealed class EnumerableExtensionsTest
         IAsyncEnumerable<Object> result =
             EnumerableExtensions.SelectAsync<Object, Object>(
                 source,
-                (_, _, _) => throw new NotImplementedException()
+                (_, _, _) => throw new NotImplementedException(),
+                TestContext.Current.CancellationToken
             );
 
         // Assert
-        IAsyncEnumerator<Object> enumerator = result.GetAsyncEnumerator();
+        IAsyncEnumerator<Object> enumerator =
+            result.GetAsyncEnumerator(TestContext.Current.CancellationToken);
+
         Assert.False(await enumerator.MoveNextAsync());
     }
 
@@ -81,11 +86,13 @@ public sealed class EnumerableExtensionsTest
                     indices.Add(i);
                     String s = n.ToString();
                     return Task.FromResult(s);
-                }
+                },
+                TestContext.Current.CancellationToken
             );
 
         // Assert
-        IAsyncEnumerator<String> enumerator = result.GetAsyncEnumerator();
+        IAsyncEnumerator<String> enumerator =
+            result.GetAsyncEnumerator(TestContext.Current.CancellationToken);
 
         for (int i = 0; i < COUNT; i ++)
         {
@@ -116,7 +123,8 @@ public sealed class EnumerableExtensionsTest
             Assert.Throws<ArgumentNullException>(() =>
                 EnumerableExtensions.SelectManyAsync<Object, Object>(
                     source,
-                    null!
+                    null!,
+                    TestContext.Current.CancellationToken
                 ));
 
         // Assert
@@ -131,7 +139,8 @@ public sealed class EnumerableExtensionsTest
             Assert.Throws<ArgumentNullException>(() =>
                 EnumerableExtensions.SelectManyAsync<Object, Object>(
                     null!,
-                    (_, _, _) => throw new NotImplementedException()
+                    (_, _, _) => throw new NotImplementedException(),
+                    TestContext.Current.CancellationToken
                 ));
 
         // Assert
@@ -148,12 +157,13 @@ public sealed class EnumerableExtensionsTest
         IAsyncEnumerable<Object> resultActual =
             EnumerableExtensions.SelectManyAsync<Object, Object>(
                 source,
-                (_, _, _) => throw new NotImplementedException()
+                (_, _, _) => throw new NotImplementedException(),
+                TestContext.Current.CancellationToken
             );
 
         // Assert
         await using IAsyncEnumerator<Object> enumerator =
-            resultActual.GetAsyncEnumerator();
+            resultActual.GetAsyncEnumerator(TestContext.Current.CancellationToken);
 
         Assert.False(await enumerator.MoveNextAsync());
     }
@@ -173,7 +183,8 @@ public sealed class EnumerableExtensionsTest
                 {
                     indicesActual.Add(i);
                     return EnumerableExtensionsTest.SelectAsync(s);
-                }
+                },
+                TestContext.Current.CancellationToken
             );
 
         // Assert
@@ -184,7 +195,7 @@ public sealed class EnumerableExtensionsTest
             resultExpected.GetEnumerator();
 
         await using IAsyncEnumerator<char> actualEnumerator =
-            resultActual.GetAsyncEnumerator();
+            resultActual.GetAsyncEnumerator(TestContext.Current.CancellationToken);
 
         while (expectedEnumerator.MoveNext())
         {
